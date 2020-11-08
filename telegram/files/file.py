@@ -120,14 +120,21 @@ class File(TelegramObject):
             raise ValueError('custom_path and out are mutually exclusive')
 
         # Convert any UTF-8 char into a url encoded ASCII string.
-        url = self._get_encoded_url()
+        # but not when we want to open a local file
+        if self.bot.local_files:
+            url = self.file_path
+        else:
+            url = self._get_encoded_url()
 
         if out:
-            buf = self.bot.request.retrieve(url)
-            if self._credentials:
-                buf = decrypt(
-                    b64decode(self._credentials.secret), b64decode(self._credentials.hash), buf
-                )
+            if self.bot.local_files:
+                buf = open(url, "rb").read()
+            else:
+                buf = self.bot.request.retrieve(url)
+                if self._credentials:
+                    buf = decrypt(
+                        b64decode(self._credentials.secret), b64decode(self._credentials.hash), buf
+                    )
             out.write(buf)
             return out
 
@@ -138,11 +145,14 @@ class File(TelegramObject):
         else:
             filename = os.path.join(os.getcwd(), self.file_id)
 
-        buf = self.bot.request.retrieve(url, timeout=timeout)
-        if self._credentials:
-            buf = decrypt(
-                b64decode(self._credentials.secret), b64decode(self._credentials.hash), buf
-            )
+        if self.bot.local_files:
+            buf = open(url, "rb").read()
+        else:
+            buf = self.bot.request.retrieve(url, timeout=timeout)
+            if self._credentials:
+                buf = decrypt(
+                    b64decode(self._credentials.secret), b64decode(self._credentials.hash), buf
+                )
         with open(filename, 'wb') as fobj:
             fobj.write(buf)
         return filename

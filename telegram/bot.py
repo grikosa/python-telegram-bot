@@ -140,6 +140,7 @@ class Bot(TelegramObject):
         token (:obj:`str`): Bot's unique authentication.
         base_url (:obj:`str`, optional): Telegram Bot API service URL.
         base_file_url (:obj:`str`, optional): Telegram Bot API file URL.
+        local_files (:obj:`bool`, optional): If local files are supposed to be used
         request (:obj:`telegram.utils.request.Request`, optional): Pre initialized
             :obj:`telegram.utils.request.Request`.
         private_key (:obj:`bytes`, optional): Private key for decryption of telegram passport data.
@@ -191,6 +192,7 @@ class Bot(TelegramObject):
         token: str,
         base_url: str = None,
         base_file_url: str = None,
+        local_files: bool = False,
         request: 'Request' = None,
         private_key: bytes = None,
         private_key_password: bytes = None,
@@ -209,6 +211,7 @@ class Bot(TelegramObject):
 
         self.base_url = str(base_url) + str(self.token)
         self.base_file_url = str(base_file_url) + str(self.token)
+        self.local_files = local_files
         self.bot: Optional[User] = None
         self._commands: Optional[List[BotCommand]] = None
         self._request = request or Request()
